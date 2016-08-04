@@ -42,7 +42,7 @@
     "require": {
         "php": ">=5.6",
         "ext-pdo_sqlite": "*",
-        "sqon/sqon": "^0.1",
+        "sqon/sqon": "^0.2",
         "symfony/console": "^2.7"
     }
 }
