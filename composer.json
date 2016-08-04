@@ -1,0 +1,47 @@
+{
+    "type": "library",
+    "name": "sqon/app",
+    "description": "Command line application for managing Sqons.",
+    "keywords": ["PHP", "sqlite", "container"],
+    "license": [
+        "MIT",
+        "Apache-2.0"
+    ],
+    "support": {
+        "issues": "https://github.com/sqon/app/issues",
+        "source": "https://github.com/sqon/app"
+    },
+
+    "authors": [
+        {
+            "name": "Kevin Herrera",
+            "email": "kevin@herrera.io",
+            "homepage": "http://kevin.herrera.io/",
+            "role": "Developer"
+        }
+    ],
+
+    "autoload": {
+        "psr-4": {
+            "Sqon\\Console\\": "src/Sqon/Console"
+        }
+    },
+
+    "autoload-dev": {
+        "psr-4": {
+            "Test\\Sqon\\Console\\": "tests/Sqon/Console"
+        }
+    },
+
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        }
+    },
+
+    "require": {
+        "php": ">=5.6",
+        "ext-pdo_sqlite": "*",
+        "sqon/sqon": "^0.1"
+    }
+}
