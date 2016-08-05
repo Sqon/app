@@ -1,0 +1,8 @@
+#!/usr/bin/env php
+<?php
+
+// Registers the Composer autoloader.
+require __DIR__ . '/../vendor/autoload.php';
+
+// Run the application.
+(new Sqon\Console\Application())->run();
