@@ -2,6 +2,7 @@
 
 namespace Sqon\Console;
 
+use Sqon\Console\Command\ExtractCommand;
 use Sqon\Console\Command\VerifyCommand;
 use Symfony\Component\Console\Application as Base;
 
@@ -28,6 +29,7 @@ class Application extends Base
         return array_merge(
             parent::getDefaultCommands(),
             [
+                new ExtractCommand(),
                 new VerifyCommand()
             ]
         );
