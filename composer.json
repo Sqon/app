@@ -22,6 +22,9 @@
     ],
 
     "autoload": {
+        "files": [
+            "src/Sqon/functions.php"
+        ],
         "psr-4": {
             "Sqon\\Console\\": "src/Sqon/Console"
         }
