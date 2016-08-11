@@ -39,11 +39,15 @@ class ConfigurationTest extends TestCase
             'A PHP bootstrap script should not be returned by default.'
         );
 
+        $file = tempnam(sys_get_temp_dir(), 'sqon');
+
+        file_put_contents($file, 'test');
+
         $config = new Configuration(
             $this->dir,
             [
                 'sqon' => [
-                    'bootstrap' => 'test'
+                    'bootstrap' => $file
                 ]
             ]
         );

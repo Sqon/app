@@ -3,9 +3,27 @@
 namespace Sqon\Builder;
 
 use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * Manages the build configuration settings for a Sqon builder.
+ *
+ * ```php
+ * [
+ *     'sqon' => [
+ *         'bootstrap' => 'path/to/script.php',
+ *         'compression' => 'GZIP',
+ *         'main' => 'path/to/main.php',
+ *         'output' => 'example.sqon',
+ *         'paths' => [
+ *             'path/to/a',
+ *             'path/to/b',
+ *             'path/to/c'
+ *         ],
+ *         'shebang' => '#!/usr/bin/env php'
+ *     ]
+ * ]
+ * ```
  *
  * @author Kevin Herrera <kevin@herrera.io>
  */
@@ -57,7 +75,24 @@ class Configuration implements ConfigurationInterface
      */
     public function getBootstrap()
     {
-        return $this->settings['sqon']['bootstrap'];
+        if (null === $this->settings['sqon']['bootstrap']) {
+            return null;
+        }
+
+        $contents = file_get_contents($this->settings['sqon']['bootstrap']);
+
+        if (false === $contents) {
+            // @codeCoverageIgnoreStart
+            throw new RuntimeException(
+                sprintf(
+                    'The PHP bootstrap script "%s" could not be read.',
+                    $this->settings['sqon']['bootstrap']
+                )
+            );
+            // @codeCoverageIgnoreEnd
+        }
+
+        return $contents;
     }
 
     /**
