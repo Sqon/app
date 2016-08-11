@@ -26,13 +26,16 @@
             "src/Sqon/functions.php"
         ],
         "psr-4": {
+            "Sqon\\Builder\\": "src/Sqon/Builder",
             "Sqon\\Console\\": "src/Sqon/Console"
         }
     },
 
     "autoload-dev": {
         "psr-4": {
-            "Test\\Sqon\\Console\\": "tests/Sqon/Console"
+            "Test\\Sqon\\Builder\\": "tests/Sqon/Builder",
+            "Test\\Sqon\\Console\\": "tests/Sqon/Console",
+            "Test\\Sqon\\Test\\": "tests/Sqon/Test"
         }
     },
 
