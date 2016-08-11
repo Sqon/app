@@ -9,6 +9,7 @@ use Sqon\Path\Memory;
 use Sqon\Path\PathInterface;
 use Sqon\Sqon;
 use Symfony\Component\Console\Tester\CommandTester;
+use Test\Sqon\Test\TempTrait;
 
 /**
  * Verifies that the Sqon extract command functions as intended.
@@ -17,6 +18,8 @@ use Symfony\Component\Console\Tester\CommandTester;
  */
 class ExtractCommandTest extends TestCase
 {
+    use TempTrait;
+
     /**
      * The path managers.
      *
@@ -119,12 +122,9 @@ class ExtractCommandTest extends TestCase
             'c/d.php' => new Memory('d.php')
         ];
 
-        $this->sqon = tempnam(sys_get_temp_dir(), 'sqon-');
+        $this->sqon = $this->createTempFile();
         $this->tester = new CommandTester(new ExtractCommand());
-        $this->temp = tempnam(sys_get_temp_dir(), 'sqon-');
-
-        unlink($this->temp);
-        mkdir($this->temp);
+        $this->temp = $this->createTempDirectory();
 
         Sqon::create($this->sqon)
             ->setPathsUsingIterator(new ArrayIterator($this->paths))
@@ -137,8 +137,6 @@ class ExtractCommandTest extends TestCase
      */
     protected function tearDown()
     {
-        if (file_exists($this->sqon)) {
-            unlink($this->sqon);
-        }
+        $this->deleteTempPaths();
     }
 }

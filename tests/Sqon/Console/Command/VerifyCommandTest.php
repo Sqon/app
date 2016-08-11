@@ -6,6 +6,7 @@ use PHPUnit_Framework_TestCase as TestCase;
 use Sqon\Console\Command\VerifyCommand;
 use Sqon\Sqon;
 use Symfony\Component\Console\Tester\CommandTester;
+use Test\Sqon\Test\TempTrait;
 
 /**
  * Verifies that the Sqon verification command functions as intended.
@@ -14,6 +15,8 @@ use Symfony\Component\Console\Tester\CommandTester;
  */
 class VerifyCommandTest extends TestCase
 {
+    use TempTrait;
+
     /**
      * The Sqon.
      *
@@ -83,7 +86,7 @@ class VerifyCommandTest extends TestCase
      */
     protected function setUp()
     {
-        $this->sqon = tempnam(sys_get_temp_dir(), 'sqon-');
+        $this->sqon = $this->createTempFile();
         $this->tester = new CommandTester(new VerifyCommand());
 
         Sqon::create($this->sqon)->commit();
@@ -94,8 +97,6 @@ class VerifyCommandTest extends TestCase
      */
     protected function tearDown()
     {
-        if (file_exists($this->sqon)) {
-            unlink($this->sqon);
-        }
+        $this->deleteTempPaths();
     }
 }

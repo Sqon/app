@@ -5,6 +5,7 @@ namespace Test\Sqon\Builder;
 use PHPUnit_Framework_TestCase as TestCase;
 use Sqon\Builder\Configuration;
 use Sqon\SqonInterface;
+use Test\Sqon\Test\TempTrait;
 
 /**
  * Verifies that the build configuration manager functions as intended.
@@ -15,6 +16,8 @@ use Sqon\SqonInterface;
  */
 class ConfigurationTest extends TestCase
 {
+    use TempTrait;
+
     /**
      * The build configuration manager.
      *
@@ -39,7 +42,7 @@ class ConfigurationTest extends TestCase
             'A PHP bootstrap script should not be returned by default.'
         );
 
-        $file = tempnam(sys_get_temp_dir(), 'sqon');
+        $file = $this->createTempFile();
 
         file_put_contents($file, 'test');
 
@@ -219,5 +222,13 @@ class ConfigurationTest extends TestCase
     {
         $this->dir = '/example/path/to/build';
         $this->config = new Configuration($this->dir, []);
+    }
+
+    /**
+     * Deletes the temporary paths.
+     */
+    protected function tearDown()
+    {
+        $this->deleteTempPaths();
     }
 }
