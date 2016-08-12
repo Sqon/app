@@ -94,10 +94,10 @@ HELP
 BAR
         );
 
-        $done = $this->createProgressBar($output, count($sqon));
+        $paths = $input->getOption('path');
+        $done = $this->createProgressBar($output, count($paths) ?: count($sqon));
         $done->start();
 
-        $paths = $input->getOption('path');
         $overwrite = !$input->getOption('no-overwrite');
 
         foreach ($sqon->getPaths() as $path => $manager) {
