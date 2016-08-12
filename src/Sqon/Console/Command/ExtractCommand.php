@@ -30,12 +30,41 @@ class ExtractCommand extends Command
         $this->setDescription('Extracts the contents');
         $this->setHelp(
             <<<HELP
-The %command.name% will extract one or more paths from the Sqon.
+The <fg=green>%command.name%</fg=green> will extract one or more paths from the Sqon.
 
-If a list of desired paths is not specified, all paths in the Sqon will be
-extracted. If a directory path is not specified to extract the paths to, a
-directory path will be created by using the path to the Sqon with "-contents"
-appended.
+By default, all of the paths that are stored in the Sqon will be extracted to
+a directory unless one or more paths are specified. The name of the directory
+is "\$sqonFileName-contents" unless an alternate output directory path is
+provided.
+
+Extracting all paths:
+
+    sqon extract example.sqon
+
+    example.sqon-contents/
+        .sqon/
+            primary.php
+        src/
+            Example/
+                Class.php
+
+Extracting some paths:
+
+    sqon extract example.sqon -p src/Example/Class.php
+
+    example.sqon-contents/
+        src/
+            Example/
+                Class.php
+
+Extracting some paths to an alternative directory:
+
+    sqon extract example.sqon alt -p src/Example/Class.php
+
+    alt/
+        src/
+            Example/
+                Class.php
 HELP
         );
 
