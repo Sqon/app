@@ -1,3 +1,7 @@
+# Ignore built packages.
+/sqon
+/sqon-*
+
 # Ignore Composer managed dependencies.
 /composer.lock
 
