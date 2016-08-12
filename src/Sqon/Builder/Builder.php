@@ -64,6 +64,14 @@ class Builder implements BuilderInterface
     /**
      * {@inheritdoc}
      */
+    public function getEventDispatcher()
+    {
+        return $this->sqon->getEventDispatcher();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public static function open($path, ConfigurationInterface $config)
     {
         return new self($config, Sqon::open($path));

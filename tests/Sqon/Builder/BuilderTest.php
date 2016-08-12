@@ -6,6 +6,7 @@ use PHPUnit_Framework_TestCase as TestCase;
 use Sqon\Builder\Builder;
 use Sqon\Builder\Configuration;
 use Sqon\Sqon;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Test\Sqon\Test\TempTrait;
 
 /**
@@ -32,6 +33,18 @@ class BuilderTest extends TestCase
      * @var array
      */
     private $settings;
+
+    /**
+     * Verify that the Sqon event dispatcher can be retrieved.
+     */
+    public function testRetrieveSqonManagerEventDispatcher()
+    {
+        self::assertInstanceOf(
+            EventDispatcherInterface::class,
+            $this->createBuilder()->getEventDispatcher(),
+            'The event dispatcher was not retrieved.'
+        );
+    }
 
     /**
      * Verify that the bootstrap script is set.

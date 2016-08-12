@@ -3,6 +3,7 @@
 namespace Sqon\Builder;
 
 use Sqon\Builder\Exception\BuilderException;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Manages the build Sqon build process using a build configuration manager.
@@ -46,6 +47,13 @@ interface BuilderInterface
      * @throws BuilderException If the existing file could not be deleted.
      */
     public static function create(ConfigurationInterface $config);
+
+    /**
+     * Returns the event dispatcher for the Sqon manager.
+     *
+     * @return EventDispatcherInterface The event dispatcher.
+     */
+    public function getEventDispatcher();
 
     /**
      * Creates a new builder for an existing Sqon.
