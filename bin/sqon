@@ -1,6 +1,13 @@
 #!/usr/bin/env php
 <?php
 
+// Convert errors into exceptions.
+set_error_handler(
+    function ($code, $message, $file, $line) {
+        throw new ErrorException($message, 0, $code, $file, $line);
+    }
+);
+
 // Registers the Composer autoloader.
 require __DIR__ . '/../vendor/autoload.php';
 
