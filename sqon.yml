@@ -1,0 +1,43 @@
+# Make the new Sqon executable.
+chmod: 0755
+
+# Filter out some files.
+filter:
+
+    # Filter paths by name.
+    name:
+
+        # Include licenses.
+        include:
+            - 'Apache 2.0.txt'
+            - 'LICENSE'
+            - 'MIT.txt'
+
+    # Filter paths by regular expression.
+    regex:
+
+        # Exclude any test cases.
+        exclude:
+            - '/[Tt]ests/'
+
+        # Include only PHP scripts.
+        include:
+            - '/\.php$/'
+
+# Set the build configuration.
+sqon:
+
+    # Compress contents using gzip.
+    compression: GZIP
+
+    # Use the executable script as main.
+    main: 'bin/sqon'
+
+    # Create the Sqon as "sqon".
+    output: 'sqon'
+
+    # Include all paths at the project root.
+    paths: ['.']
+
+    # Include a shebang line with the PHP bootstrap script.
+    shebang: '#!/usr/bin/env php'
