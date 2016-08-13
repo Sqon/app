@@ -141,6 +141,60 @@ interface ConfigurationInterface
     public function getPaths();
 
     /**
+     * Returns the paths to the plugins for the Sqon manager.
+     *
+     * A plugin is a PHP script that returns a callback that accepts an event
+     * dispatcher and Sqon manager as its arguments. The callback is expected
+     * to register a listener or subscriber for one or more of the events that
+     * are used by the Sqon manager.
+     *
+     * ```php
+     * use Sqon\SqonInterface;
+     * use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+     *
+     * return function (
+     *     EventDispatcherInterface $dispatcher,
+     *     SqonInterface $sqon
+     * ) {
+     *     // ...
+     * }
+     * ```
+     *
+     * ```php
+     * foreach ($config->getPlugins() as $plugin) {
+     *     call_user_func(
+     *         include $plugin,
+     *         $sqon->getEventDispatcher(),
+     *         $sqon
+     *     );
+     * }
+     * ```
+     *
+     * If a plugin uses an external library to perform its function, you may
+     * want to register your class paths with the Composer autoloader that is
+     * bundled with the application. The Composer class loader can be retrieved
+     * by calling `get_composer_autoloader()`.
+     *
+     * > This function is only available when the application is executed.
+     * > For testing, you may need to define your own version of the function
+     * > that returned the class loader.
+     *
+     * ```php
+     * use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+     *
+     * $loader = get_composer_autoloader();
+     * $loader->addPsr('My\\Library\\', __DIR__ . '/src/My/Library');
+     *
+     * return function (EventDispatcherInterface $dispatcher) {
+     *     // ...
+     * };
+     * ```
+     *
+     * @return string[] The paths to the plugins.
+     */
+    public function getPlugins();
+
+    /**
      * Returns the shebang line for the PHP bootstrap script.
      *
      * The shebang line returned is used when creating the default PHP

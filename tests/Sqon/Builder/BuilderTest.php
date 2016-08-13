@@ -47,6 +47,51 @@ class BuilderTest extends TestCase
     }
 
     /**
+     * Verify that the plugins are registered.
+     */
+    public function testRegisterAvailablePlugins()
+    {
+        $plugin = $this->createTempFile();
+
+        file_put_contents(
+            $plugin,
+            <<<'PHP'
+<?php
+
+use Sqon\SqonInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
+return function (EventDispatcherInterface $dispatcher, SqonInterface $sqon) {
+    $dispatcher->addListener(
+        'test',
+        function () {
+            return 'test';
+        }
+    );
+};
+PHP
+        );
+
+        $this->settings['plugins'][] = $plugin;
+
+        $dispatcher = $this
+            ->createBuilder()
+            ->registerPlugins()
+            ->getEventDispatcher()
+        ;
+
+        $listeners = $dispatcher->getListeners('test');
+
+        foreach ($listeners as $listener) {
+            self::assertEquals(
+                'test',
+                $listener(),
+                'The expected event listener was not registered.'
+            );
+        }
+    }
+
+    /**
      * Verify that the bootstrap script is set.
      */
     public function testSetThePhpBootstrapScriptForTheSqon()
@@ -161,6 +206,7 @@ class BuilderTest extends TestCase
             'main' => 'path/to/main.php',
             'output' => basename($this->path),
             'paths' => [],
+            'plugins' => [],
             'shebang' => '#!/usr/bin/env php'
         ];
     }

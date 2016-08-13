@@ -20,6 +20,11 @@ use RuntimeException;
  *             'path/to/b',
  *             'path/to/c'
  *         ],
+ *         'plugins' => [
+ *             'path/to/plugin/a.php',
+ *             'path/to/plugin/b.php',
+ *             'path/to/plugin/c.php',
+ *         ],
  *         'shebang' => '#!/usr/bin/env php'
  *     ]
  * ]
@@ -133,6 +138,14 @@ class Configuration implements ConfigurationInterface
     public function getPaths()
     {
         return $this->settings['sqon']['paths'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPlugins()
+    {
+        return $this->settings['sqon']['plugins'];
     }
 
     /**

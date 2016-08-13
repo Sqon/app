@@ -190,6 +190,34 @@ class ConfigurationTest extends TestCase
     }
 
     /**
+     * Verify that the plugin paths are returned.
+     */
+    public function testRetrieveThePathsToThePlugins()
+    {
+        self::assertSame(
+            [],
+            $this->config->getPlugins(),
+            'There should be no plugins defined by default.'
+        );
+
+        $plugins = ['a', 'b', 'c'];
+        $config = new Configuration(
+            $this->dir,
+            [
+                'sqon' => [
+                    'plugins' => $plugins
+                ]
+            ]
+        );
+
+        self::assertEquals(
+            $plugins,
+            $config->getPlugins(),
+            'The plugin paths were not returned.'
+        );
+    }
+
+    /**
      * Verify that the shebang line is returned.
      */
     public function testRetrieveThePhpBootstrapScriptShebangLine()
