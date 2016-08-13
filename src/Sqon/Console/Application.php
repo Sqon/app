@@ -2,10 +2,8 @@
 
 namespace Sqon\Console;
 
-use Sqon\Console\Command\CreateCommand;
 use Sqon\Console\Command\ExtractCommand;
 use Sqon\Console\Command\VerifyCommand;
-use Sqon\Console\Helper\ConfigHelper;
 use Symfony\Component\Console\Application as Base;
 
 /**
@@ -31,21 +29,9 @@ class Application extends Base
         return array_merge(
             parent::getDefaultCommands(),
             [
-                new CreateCommand(),
                 new ExtractCommand(),
                 new VerifyCommand()
             ]
         );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getDefaultHelperSet()
-    {
-        $set = parent::getDefaultHelperSet();
-        $set->set(new ConfigHelper());
-
-        return $set;
     }
 }
