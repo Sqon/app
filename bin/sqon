@@ -8,8 +8,24 @@ set_error_handler(
     }
 );
 
+/**
+ * Returns the class loader provided by Composer.
+ *
+ * @return Composer\Autoload\ClassLoader The class loader.
+ */
+function get_composer_autoloader()
+{
+    static $loader;
+
+    if (null === $loader) {
+        $loader = require_once __DIR__ . '/../vendor/autoload.php';
+    }
+
+    return $loader;
+}
+
 // Registers the Composer autoloader.
-require __DIR__ . '/../vendor/autoload.php';
+get_composer_autoloader();
 
 // Run the application.
 (new Sqon\Console\Application())->run();
