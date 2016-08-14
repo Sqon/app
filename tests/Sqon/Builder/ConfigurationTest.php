@@ -5,6 +5,7 @@ namespace Test\Sqon\Builder;
 use PHPUnit_Framework_TestCase as TestCase;
 use Sqon\Builder\Configuration;
 use Sqon\SqonInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Test\Sqon\Test\TempTrait;
 
 /**
@@ -155,6 +156,55 @@ class ConfigurationTest extends TestCase
     }
 
     /**
+     * Verify that the plugins are registered with an event dispatcher.
+     */
+    public function testRegisterPluginsWithAnEventDispatcher()
+    {
+        $plugin = $this->createTempFile();
+
+        file_put_contents(
+            $plugin,
+            <<<'PHP'
+<?php
+
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
+return function (EventDispatcherInterface $dispatcher) {
+    $dispatcher->addListener(
+        'test',
+        function () {
+            return 'test';
+        }
+    );
+};
+PHP
+        );
+
+        $dispatcher = new EventDispatcher();
+
+        $config = new Configuration(
+            $this->dir,
+            [
+                'sqon' => [
+                    'plugins' => [$plugin]
+                ]
+            ]
+        );
+
+        $config->registerPlugins($dispatcher);
+
+        $listeners = $dispatcher->getListeners('test');
+
+        foreach ($listeners as $listener) {
+            self::assertEquals(
+                'test',
+                $listener(),
+                'The expected event listener was not registered.'
+            );
+        }
+    }
+
+    /**
      * Verify that the paths to set are returned.
      */
     public function testRetrievePathsToSetInTheSqon()
@@ -186,34 +236,6 @@ class ConfigurationTest extends TestCase
             ],
             $config->getPaths(),
             'The paths to set were not returned.'
-        );
-    }
-
-    /**
-     * Verify that the plugin paths are returned.
-     */
-    public function testRetrieveThePathsToThePlugins()
-    {
-        self::assertSame(
-            [],
-            $this->config->getPlugins(),
-            'There should be no plugins defined by default.'
-        );
-
-        $plugins = ['a', 'b', 'c'];
-        $config = new Configuration(
-            $this->dir,
-            [
-                'sqon' => [
-                    'plugins' => $plugins
-                ]
-            ]
-        );
-
-        self::assertEquals(
-            $plugins,
-            $config->getPlugins(),
-            'The plugin paths were not returned.'
         );
     }
 

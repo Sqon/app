@@ -3,6 +3,7 @@
 namespace Sqon\Builder;
 
 use Sqon\Builder\Exception\BuilderException;
+use Sqon\SqonInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -54,6 +55,13 @@ interface BuilderInterface
      * @return EventDispatcherInterface The event dispatcher.
      */
     public function getEventDispatcher();
+
+    /**
+     * Returns the Sqon manager.
+     *
+     * @return SqonInterface The Sqon manager.
+     */
+    public function getSqon();
 
     /**
      * Creates a new builder for an existing Sqon.

@@ -6,6 +6,7 @@ use PHPUnit_Framework_TestCase as TestCase;
 use Sqon\Builder\Builder;
 use Sqon\Builder\Configuration;
 use Sqon\Sqon;
+use Sqon\SqonInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Test\Sqon\Test\TempTrait;
 
@@ -47,6 +48,18 @@ class BuilderTest extends TestCase
     }
 
     /**
+     * Verify that the Sqon manager can be retrieved.
+     */
+    public function testRetrieveTheSqonManager()
+    {
+        self::assertInstanceOf(
+            SqonInterface::class,
+            $this->createBuilder()->getSqon(),
+            'The Sqon manager was not returned.'
+        );
+    }
+
+    /**
      * Verify that the plugins are registered.
      */
     public function testRegisterAvailablePlugins()
@@ -58,10 +71,9 @@ class BuilderTest extends TestCase
             <<<'PHP'
 <?php
 
-use Sqon\SqonInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-return function (EventDispatcherInterface $dispatcher, SqonInterface $sqon) {
+return function (EventDispatcherInterface $dispatcher) {
     $dispatcher->addListener(
         'test',
         function () {

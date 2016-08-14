@@ -72,6 +72,14 @@ class Builder implements BuilderInterface
     /**
      * {@inheritdoc}
      */
+    public function getSqon()
+    {
+        return $this->sqon;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public static function open($path, ConfigurationInterface $config)
     {
         return new self($config, Sqon::open($path));
@@ -82,29 +90,7 @@ class Builder implements BuilderInterface
      */
     public function registerPlugins()
     {
-        foreach ($this->config->getPlugins() as $plugin) {
-            $plugin = self::getAbsolutePath($this->config, $plugin);
-
-            if (!is_file($plugin)) {
-                // @codeCoverageIgnoreStart
-                throw new BuilderException(
-                    "The plugin \"$plugin\" does not exist."
-                );
-                // @codeCoverageIgnoreEnd
-            }
-
-            $callback = include $plugin;
-
-            if (!is_callable($callback)) {
-                // @codeCoverageIgnoreStart
-                throw new BuilderException(
-                    "The plugin \"$plugin\" did not return a callback."
-                );
-                // @codeCoverageIgnoreEnd
-            }
-
-            $callback($this->sqon->getEventDispatcher(), $this->sqon);
-        }
+        $this->config->registerPlugins($this->sqon->getEventDispatcher());
 
         return $this;
     }

@@ -4,6 +4,8 @@ namespace Sqon\Builder;
 
 use InvalidArgumentException;
 use RuntimeException;
+use Sqon\Builder\Exception\ConfigurationException;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Manages the build configuration settings for a Sqon builder.
@@ -143,17 +145,19 @@ class Configuration implements ConfigurationInterface
     /**
      * {@inheritdoc}
      */
-    public function getPlugins()
+    public function getShebang()
     {
-        return $this->settings['sqon']['plugins'];
+        return $this->settings['sqon']['shebang'];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getShebang()
+    public function registerPlugins(EventDispatcherInterface $dispatcher)
     {
-        return $this->settings['sqon']['shebang'];
+        foreach ($this->settings['sqon']['plugins'] as $plugin) {
+            $this->registerPlugin($dispatcher, $plugin);
+        }
     }
 
     /**
@@ -193,5 +197,38 @@ class Configuration implements ConfigurationInterface
         $settings['sqon']['compression'] = constant($constant);
 
         return $settings;
+    }
+
+    /**
+     * Registers an individual plugin with the event dispatcher.
+     *
+     * @param EventDispatcherInterface $dispatcher The event dispatcher.
+     * @param string                   $path       The path to the plugin.
+     *
+     * @throws ConfigurationException If the plugin could not be registered.
+     */
+    private function registerPlugin(
+        EventDispatcherInterface $dispatcher,
+        $path
+    ) {
+        if (!is_file($path)) {
+            // @codeCoverageIgnoreStart
+            throw new ConfigurationException(
+                "The plugin \"$path\" does not exist."
+            );
+            // @codeCoverageIgnoreEnd
+        }
+
+        $callback = require $path;
+
+        if (!is_callable($callback)) {
+            // @codeCoverageIgnoreStart
+            throw new ConfigurationException(
+                "The plugin \"$path\" did not return a callback."
+            );
+            // @codeCoverageIgnoreEnd
+        }
+
+        $callback($dispatcher);
     }
 }
