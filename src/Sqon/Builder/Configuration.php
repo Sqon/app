@@ -178,7 +178,7 @@ class Configuration implements ConfigurationInterface
         if (isset($settings['sqon'])) {
             $settings['sqon'] = array_merge(self::$default, $settings['sqon']);
         } else {
-            $settings = ['sqon' => self::$default];
+            $settings['sqon'] = self::$default;
         }
 
         $constant = '\Sqon\Sqon::' . $settings['sqon']['compression'];
