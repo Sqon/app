@@ -153,6 +153,18 @@ class Configuration implements ConfigurationInterface
     /**
      * {@inheritdoc}
      */
+    public function getSettings($namespace)
+    {
+        if (isset($this->settings[$namespace])) {
+            return $this->settings[$namespace];
+        }
+
+        return null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function registerPlugins(EventDispatcherInterface $dispatcher)
     {
         foreach ($this->settings['sqon']['plugins'] as $plugin) {
@@ -229,6 +241,6 @@ class Configuration implements ConfigurationInterface
             // @codeCoverageIgnoreEnd
         }
 
-        $callback($dispatcher);
+        $callback($dispatcher, $this);
     }
 }

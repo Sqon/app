@@ -156,6 +156,34 @@ class ConfigurationTest extends TestCase
     }
 
     /**
+     * Verify that namespaced settings can be retrieved.
+     */
+    public function testRetrieveNamespacedSettings()
+    {
+        $config = new Configuration($this->dir, []);
+
+        self::assertNull(
+            $config->getSettings('test'),
+            'The "test" namespace should have no settings.'
+        );
+
+        $config = new Configuration(
+            $this->dir,
+            [
+                'test' => [
+                    'value' => 123
+                ]
+            ]
+        );
+
+        self::assertEquals(
+            ['value' => 123],
+            $config->getSettings('test'),
+            'The namespaced settings were not returned.'
+        );
+    }
+
+    /**
      * Verify that the plugins are registered with an event dispatcher.
      */
     public function testRegisterPluginsWithAnEventDispatcher()
@@ -167,13 +195,17 @@ class ConfigurationTest extends TestCase
             <<<'PHP'
 <?php
 
+use Sqon\Builder\ConfigurationInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-return function (EventDispatcherInterface $dispatcher) {
+return function (
+    EventDispatcherInterface $dispatcher,
+    ConfigurationInterface $config
+) {
     $dispatcher->addListener(
         'test',
-        function () {
-            return 'test';
+        function () use ($config) {
+            return $config->getSettings('test')['value'];
         }
     );
 };
@@ -187,6 +219,9 @@ PHP
             [
                 'sqon' => [
                     'plugins' => [$plugin]
+                ],
+                'test' => [
+                    'value' => 'test'
                 ]
             ]
         );

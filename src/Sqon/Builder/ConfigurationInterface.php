@@ -145,6 +145,27 @@ interface ConfigurationInterface
     public function getPaths();
 
     /**
+     * Returns the settings for a namespace.
+     *
+     * This method will provide a plugin access to settings that are stored in
+     * a namespace. These namespaces and their values are defined by plugins
+     * and can continue any value that is needed by the plugin.
+     *
+     * ```php
+     * $settings = $config->getSettings('plugin_namespace');
+     *
+     * if (null !== $settings) {
+     *     // ...
+     * }
+     * ```
+     *
+     * @param string $namespace The namespace for the settings.
+     *
+     * @return mixed|null The settings from the namespace.
+     */
+    public function getSettings($namespace);
+
+    /**
      * Returns the shebang line for the PHP bootstrap script.
      *
      * The shebang line returned is used when creating the default PHP
@@ -175,13 +196,20 @@ interface ConfigurationInterface
      * ```
      *
      * A plugin is a PHP script that returns a callback that accepts an event
-     * dispatcher as its argument. The callback registers one or more event
-     * listeners or subscribers with the event dispatcher.
+     * dispatcher and build configuration manager as its arguments. The callback
+     * registers one or more event listeners or subscribers with the event
+     * dispatcher.
      *
      * ```php
+     * use Sqon\Builder\ConfigurationInterface;
      * use Symfony\Component\EventDispatcher\EventDispatcherInterface;
      *
-     * return function (EventDispatcherInterface $dispatcher) {
+     * return function (
+     *     EventDispatcherInterface $dispatcher,
+     *     ConfigurationInterface $config
+     * ) {
+     *     $settings = $config->getSettings('my_plugin_settings');
+     *
      *     // ...
      * };
      * ```
