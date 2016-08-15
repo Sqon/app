@@ -4,6 +4,7 @@ namespace Sqon\Console;
 
 use Sqon\Console\Command\ExtractCommand;
 use Sqon\Console\Command\VerifyCommand;
+use Sqon\Console\Helper\VerboseHelper;
 use Symfony\Component\Console\Application as Base;
 
 /**
@@ -33,5 +34,17 @@ class Application extends Base
                 new VerifyCommand()
             ]
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getDefaultHelperSet()
+    {
+        $set = parent::getDefaultHelperSet();
+
+        $set->set(new VerboseHelper());
+
+        return $set;
     }
 }
