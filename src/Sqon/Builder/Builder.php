@@ -139,7 +139,7 @@ class Builder implements BuilderInterface
                 Sqon::PRIMARY,
                 new Memory(
                     sprintf(
-                        "<?php require '%s';",
+                        "<?php chdir(dirname(__DIR__)); require '%s';",
                         $this->config->getMain()
                     )
                 )
