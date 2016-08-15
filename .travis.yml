@@ -1,0 +1,41 @@
+after_success:
+    - composer require satooshi/php-coveralls
+    - CI_BUILD_NUMBER="$TRAVIS_BUILD_NUMBER" CI_PULL_REQUEST="$TRAVIS_PULL_REQUEST" CI_BRANCH="$TRAVIS_BRANCH" php vendor/bin/coveralls
+
+branches:
+    only:
+        - master
+
+git:
+    depth: 1
+
+install:
+    - composer install
+    - mkdir -p build/logs
+
+language: php
+
+matrix:
+
+    allow_failures:
+        - php: nightly
+        - php: hhvm-nightly
+
+    fast_finish: true
+
+    include:
+        - php: 5.6
+        - php: 7.0
+        - php: nightly
+        - php: hhvm-3.12
+          sudo: required
+          dist: trusty
+          group: edge
+        - php: hhvm-nightly
+          sudo: required
+          dist: trusty
+          group: edge
+
+script: phpunit --coverage-clover build/logs/clover.xml
+
+sudo: false
