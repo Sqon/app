@@ -2,6 +2,8 @@
 
 namespace Sqon\Console;
 
+use Sqon\Console\Command\CreateCommand;
+use Sqon\Console\Command\EditCommand;
 use Sqon\Console\Command\ExtractCommand;
 use Sqon\Console\Command\VerifyCommand;
 use Sqon\Console\Helper\VerboseHelper;
@@ -30,6 +32,8 @@ class Application extends Base
         return array_merge(
             parent::getDefaultCommands(),
             [
+                new CreateCommand(),
+                new EditCommand(),
                 new ExtractCommand(),
                 new VerifyCommand()
             ]
