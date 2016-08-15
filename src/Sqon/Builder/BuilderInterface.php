@@ -50,6 +50,13 @@ interface BuilderInterface
     public static function create(ConfigurationInterface $config);
 
     /**
+     * Returns the build configuration manager.
+     *
+     * @return ConfigurationInterface The build configuration manager.
+     */
+    public function getConfiguration();
+
+    /**
      * Returns the event dispatcher for the Sqon manager.
      *
      * @return EventDispatcherInterface The event dispatcher.

@@ -64,6 +64,14 @@ class Builder implements BuilderInterface
     /**
      * {@inheritdoc}
      */
+    public function getConfiguration()
+    {
+        return $this->config;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getEventDispatcher()
     {
         return $this->sqon->getEventDispatcher();

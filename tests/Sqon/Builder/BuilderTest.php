@@ -5,6 +5,7 @@ namespace Test\Sqon\Builder;
 use PHPUnit_Framework_TestCase as TestCase;
 use Sqon\Builder\Builder;
 use Sqon\Builder\Configuration;
+use Sqon\Builder\ConfigurationInterface;
 use Sqon\Sqon;
 use Sqon\SqonInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -34,6 +35,18 @@ class BuilderTest extends TestCase
      * @var array
      */
     private $settings;
+
+    /**
+     * Verify that the build configuration manager can be retrieved.
+     */
+    public function testRetrieveTheBuildConfigurationManager()
+    {
+        self::assertInstanceOf(
+            ConfigurationInterface::class,
+            $this->createBuilder()->getConfiguration(),
+            'The build configuration manager was not returned.'
+        );
+    }
 
     /**
      * Verify that the Sqon event dispatcher can be retrieved.
