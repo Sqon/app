@@ -134,7 +134,9 @@ class Builder implements BuilderInterface
      */
     public function setMain()
     {
-        if (null !== $this->config->getMain()) {
+        if (null === $this->config->getMain()) {
+            $this->sqon->removePath(Sqon::PRIMARY);
+        } else {
             $this->sqon->setPath(
                 Sqon::PRIMARY,
                 new Memory(

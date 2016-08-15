@@ -172,6 +172,7 @@ PHP
      */
     public function testSetTheMainScriptForTheSqon()
     {
+        // Set the main script for a new Sqon.
         $this
             ->createBuilder()
             ->setMain()
@@ -184,6 +185,24 @@ PHP
             $this->settings['main'],
             $sqon->getPath(Sqon::PRIMARY)->getContents(),
             'The main script was not set.'
+        );
+
+        $sqon = null;
+
+        // Remove the main script for an existing Sqon.
+        $this->settings['main'] = null;
+
+        $this
+            ->openBuilder()
+            ->setMain()
+            ->commit()
+        ;
+
+        $sqon = Sqon::open($this->path);
+
+        self::assertFalse(
+            $sqon->hasPath(Sqon::PRIMARY),
+            'The primary script was not removed.'
         );
     }
 
