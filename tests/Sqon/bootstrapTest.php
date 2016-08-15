@@ -66,8 +66,6 @@ class bootstrapTest extends TestCase
     /**
      * Verify that a path can be canonicalized.
      *
-     * @covers \Sqon\canonicalize
-     *
      * @dataProvider getCanonicalizedPaths
      *
      * @param string $original  The original path.
@@ -85,8 +83,6 @@ class bootstrapTest extends TestCase
     /**
      * Verify that a path can be checked for relativity.
      *
-     * @covers \Sqon\is_relative
-     *
      * @dataProvider getAbsolutePaths
      *
      * @param string $path The path to check.
@@ -101,8 +97,6 @@ class bootstrapTest extends TestCase
 
     /**
      * Verify that a path can be checked for relativity.
-     *
-     * @covers \Sqon\is_relative
      *
      * @dataProvider getRelativePaths
      *
