@@ -122,6 +122,16 @@ class Builder implements BuilderInterface
     /**
      * {@inheritdoc}
      */
+    public function setCompression()
+    {
+        $this->sqon->setCompression($this->config->getCompression());
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setMain()
     {
         if (null !== $this->config->getMain()) {
@@ -185,7 +195,6 @@ class Builder implements BuilderInterface
         $this->config = $config;
         $this->sqon = $sqon;
 
-        $sqon->setCompression($config->getCompression());
         $sqon->setEventDispatcher(new EventDispatcher());
     }
 

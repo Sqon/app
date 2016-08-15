@@ -127,6 +127,17 @@ interface BuilderInterface
     public function setBootstrap();
 
     /**
+     * Sets the compression mode for new paths set in the Sqon.
+     *
+     * ```php
+     * $builder->setCompression();
+     * ```
+     *
+     * @return BuilderInterface A fluent interface to the builder.
+     */
+    public function setCompression();
+
+    /**
      * Sets the path to the main script in the Sqon.
      *
      * The path is to a script that is set in the Sqon that will be executed

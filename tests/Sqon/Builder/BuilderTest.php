@@ -154,6 +154,20 @@ PHP
     }
 
     /**
+     * Verify that the compression mode is set.
+     */
+    public function testSetTheCompressionMode()
+    {
+        $builder = $this->createBuilder();
+
+        self::assertSame(
+            $builder,
+            $builder->setCompression(),
+            'The compression setter did not return a fluent interface.'
+        );
+    }
+
+    /**
      * Verify that the main script is set.
      */
     public function testSetTheMainScriptForTheSqon()
