@@ -9,6 +9,7 @@
 - [Requirements](#requirements)
 - [Install](#install)
 - [Documentation](#documentation)
+- [GPG Signature](#gpg-signature)
 - [License](#license)
 - [Logo](#logo)
 
@@ -76,6 +77,14 @@ Documentation
 All of the documentation has been written into the commands themselves. To access this documentation, please run the desired command followed by the `-h` or `--help` option:
 
     $ ./sqon create -h
+
+GPG Signature
+-------------
+
+You can download Kevin Herrera's public key and verify the signature (`sqon.sig`) of `sqon`.
+
+    gpg --keyserver hkp://pgp.mit.edu --recv-keys 41515FE8
+    gpg --verify sqon.sig sqon
 
 License
 -------
