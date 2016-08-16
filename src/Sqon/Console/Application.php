@@ -21,7 +21,7 @@ class Application extends Base
      */
     public function __construct()
     {
-        parent::__construct('Sqon', '0.0.0');
+        parent::__construct('Sqon', '0.1.0');
     }
 
     /**
