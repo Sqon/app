@@ -9,6 +9,7 @@ use Sqon\Builder\ConfigurationInterface;
 use Sqon\Sqon;
 use Sqon\SqonInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Test\Sqon\Builder\Plugin\TestPlugin;
 use Test\Sqon\Test\TempTrait;
 
 /**
@@ -77,43 +78,32 @@ class BuilderTest extends TestCase
      */
     public function testRegisterAvailablePlugins()
     {
-        $plugin = $this->createTempFile();
+        $this->settings['plugins'][] = [
+            'class' => TestPlugin::class
+        ];
 
-        file_put_contents(
-            $plugin,
-            <<<'PHP'
-<?php
-
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-
-return function (EventDispatcherInterface $dispatcher) {
-    $dispatcher->addListener(
-        'test',
-        function () {
-            return 'test';
-        }
-    );
-};
-PHP
-        );
-
-        $this->settings['plugins'][] = $plugin;
-
-        $dispatcher = $this
+        $builder = $this
             ->createBuilder()
             ->registerPlugins()
-            ->getEventDispatcher()
         ;
 
-        $listeners = $dispatcher->getListeners('test');
+        self::assertSame(
+            $builder->getConfiguration(),
+            TestPlugin::$config,
+            'The configuration manager was not provided to the plugin.'
+        );
 
-        foreach ($listeners as $listener) {
-            self::assertEquals(
-                'test',
-                $listener(),
-                'The expected event listener was not registered.'
-            );
-        }
+        self::assertSame(
+            $builder->getEventDispatcher(),
+            TestPlugin::$eventDispatcher,
+            'The event dispatcher was not provided to the plugin.'
+        );
+
+        self::assertSame(
+            $builder->getSqon(),
+            TestPlugin::$sqon,
+            'The Sqon manager was not provided to the plugin.'
+        );
     }
 
     /**

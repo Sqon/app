@@ -5,7 +5,7 @@ namespace Test\Sqon\Builder;
 use PHPUnit_Framework_TestCase as TestCase;
 use Sqon\Builder\Configuration;
 use Sqon\SqonInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Test\Sqon\Builder\Plugin\TestPlugin;
 use Test\Sqon\Test\TempTrait;
 
 /**
@@ -188,55 +188,62 @@ class ConfigurationTest extends TestCase
      */
     public function testRegisterPluginsWithAnEventDispatcher()
     {
-        $plugin = $this->createTempFile();
-
-        file_put_contents(
-            $plugin,
-            <<<'PHP'
-<?php
-
-use Sqon\Builder\ConfigurationInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-
-return function (
-    EventDispatcherInterface $dispatcher,
-    ConfigurationInterface $config
-) {
-    $dispatcher->addListener(
-        'test',
-        function () use ($config) {
-            return $config->getSettings('test')['value'];
-        }
-    );
-};
-PHP
-        );
-
-        $dispatcher = new EventDispatcher();
+        $classmap = ['PluginTest/'];
+        $files = [__DIR__ . '/../../test.php'];
+        $psr0 = ['PluginTest\\' => ['src/']];
+        $psr4 = ['PluginTest\\' => ['plugin/test/']];
 
         $config = new Configuration(
             $this->dir,
             [
                 'sqon' => [
-                    'plugins' => [$plugin]
-                ],
-                'test' => [
-                    'value' => 'test'
+                    'plugins' => [
+                        [
+                            'autoload' => [
+                                'classmap' => $classmap,
+                                'files' => $files,
+                                'psr0' => $psr0,
+                                'psr4' => $psr4
+                            ],
+                            'class' => TestPlugin::class
+                        ]
+                    ]
                 ]
             ]
         );
 
-        $config->registerPlugins($dispatcher);
-
-        $listeners = $dispatcher->getListeners('test');
-
-        foreach ($listeners as $listener) {
-            self::assertEquals(
-                'test',
-                $listener(),
-                'The expected event listener was not registered.'
+        foreach ($config->getPlugins() as $plugin) {
+            self::assertInstanceOf(
+                TestPlugin::class,
+                $plugin,
+                'The test plugin was not returned.'
             );
         }
+
+        $loader = get_composer_autoloader();
+
+        self::assertEquals(
+            $classmap,
+            $loader->getClassMap(),
+            'The class map was not set.'
+        );
+
+        self::assertTrue(
+            function_exists('plugin_registration_successful'),
+            'The plugin file was not loaded.'
+        );
+
+        self::assertEquals(
+            $psr0,
+            $loader->getPrefixes(),
+            'The PSR-0 prefixes were not registered.'
+        );
+
+        self::assertEquals(
+            $psr4,
+            $loader->getPrefixesPsr4(),
+            'The PSR-4 prefixes were not registered.'
+        );
     }
 
     /**

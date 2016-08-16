@@ -2,7 +2,8 @@
 
 namespace Sqon\Builder;
 
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Generator;
+use Sqon\Builder\Plugin\PluginInterface;
 
 /**
  * Defines the public interface for a Sqon build configuration manager.
@@ -145,6 +146,24 @@ interface ConfigurationInterface
     public function getPaths();
 
     /**
+     * Returns the plugins for registration.
+     *
+     * This method will return instances of the available plugins for
+     * registration. If the plugin has any dependencies, they must either
+     * be resolved by the configuration manager (i.e. registering autoloader
+     * paths) or by the plugin itself after instantiation.
+     *
+     * ```php
+     * foreach ($config->getPlugins() as $plugin) {
+     *     $plugin->register($dispatcher, $config, $sqon);
+     * }
+     * ```
+     *
+     * @return Generator|PluginInterface[] The plugin instances.
+     */
+    public function getPlugins();
+
+    /**
      * Returns the settings for a namespace.
      *
      * This method will provide a plugin access to settings that are stored in
@@ -187,43 +206,4 @@ interface ConfigurationInterface
      * @return null|string The shebang line.
      */
     public function getShebang();
-
-    /**
-     * Registers the plugins with an event dispatcher.
-     *
-     * ```php
-     * $config->registerPlugins($dispatcher);
-     * ```
-     *
-     * A plugin is a PHP script that returns a callback that accepts an event
-     * dispatcher and build configuration manager as its arguments. The callback
-     * registers one or more event listeners or subscribers with the event
-     * dispatcher.
-     *
-     * ```php
-     * use Sqon\Builder\ConfigurationInterface;
-     * use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-     *
-     * return function (
-     *     EventDispatcherInterface $dispatcher,
-     *     ConfigurationInterface $config
-     * ) {
-     *     $settings = $config->getSettings('my_plugin_settings');
-     *
-     *     // ...
-     * };
-     * ```
-     *
-     * If the callback registers a listener or subscriber that requires an
-     * external library, the `get_composer_autoloader()` function can be used
-     * to register the class paths with the class loader.
-     *
-     * ```php
-     * $loader = get_composer_autoloader();
-     * $loader->addPsr4('My\\Example\\', '/path/to/src/My/Example');
-     * ```
-     *
-     * @param EventDispatcherInterface $dispatcher The event dispatcher.
-     */
-    public function registerPlugins(EventDispatcherInterface $dispatcher);
 }

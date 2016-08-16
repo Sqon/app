@@ -98,7 +98,13 @@ class Builder implements BuilderInterface
      */
     public function registerPlugins()
     {
-        $this->config->registerPlugins($this->sqon->getEventDispatcher());
+        foreach ($this->config->getPlugins() as $plugin) {
+            $plugin->register(
+                $this->sqon->getEventDispatcher(),
+                $this->config,
+                $this->sqon
+            );
+        }
 
         return $this;
     }

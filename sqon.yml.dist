@@ -4,25 +4,37 @@ chmod: 0755
 # Filter out some files.
 filter:
 
-    # Filter paths by name.
-    name:
+    # List paths to exclude.
+    exclude:
 
-        # Include licenses.
-        include:
+        # Exclude paths by regular expression.
+        regex:
+            - '/[Tt]ests/'
+
+    # List paths to always include.
+    include:
+
+        # Include paths by name.
+        name:
             - 'Apache 2.0.txt'
             - 'LICENSE'
             - 'MIT.txt'
 
-    # Filter paths by regular expression.
-    regex:
+        # Include paths by their exact path.
+        path:
+            - 'bin/sqon'
 
-        # Exclude any test cases.
-        exclude:
-            - '/[Tt]ests/'
-
-        # Include only PHP scripts.
-        include:
+        # Include paths by regular expression.
+        regex:
             - '/\.php$/'
+
+# Replaces matching patterns.
+replace:
+
+    # Remove the shebang line for the main script.
+    files:
+        'bin/sqon':
+            '/^#![^\n\r]+[\n\r]+/m': ''
 
 # Set the build configuration.
 sqon:
@@ -32,6 +44,12 @@ sqon:
 
     # Use the executable script as main.
     main: 'bin/sqon'
+
+    # Registers Sqon manager plugins.
+    plugins:
+        - class: Sqon\Builder\Plugin\Chmod
+        - class: Sqon\Builder\Plugin\Filter
+        - class: Sqon\Builder\Plugin\Replace
 
     # Create the Sqon as "sqon".
     output: 'sqon'

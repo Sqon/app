@@ -92,20 +92,13 @@ interface BuilderInterface
     public static function open($path, ConfigurationInterface $config);
 
     /**
-     * Registers all available plugins with the event dispatcher.
-     *
-     * All of the plugins paths returned by the configuration manager will be
-     * loaded and registered with the event dispatcher for the Sqon. Plugins
-     * that do not exist or do not return a callback will cause the builder to
-     * throw an exception.
+     * Registers all available plugins with the builder.
      *
      * ```php
      * $builder->registerPlugins();
      * ```
      *
      * @return BuilderInterface A fluent interface to the builder.
-     *
-     * @throws BuilderException If a plugin does not exist or is invalid.
      */
     public function registerPlugins();
 

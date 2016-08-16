@@ -32,6 +32,9 @@
     },
 
     "autoload-dev": {
+        "files": [
+            "tests/functions.php"
+        ],
         "psr-4": {
             "Test\\Sqon\\Builder\\": "tests/Sqon/Builder",
             "Test\\Sqon\\Console\\": "tests/Sqon/Console",

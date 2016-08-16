@@ -5,7 +5,7 @@ namespace Sqon\Builder;
 use InvalidArgumentException;
 use RuntimeException;
 use Sqon\Builder\Exception\ConfigurationException;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Sqon\Builder\Plugin\PluginInterface;
 
 /**
  * Manages the build configuration settings for a Sqon builder.
@@ -23,9 +23,15 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *             'path/to/c'
  *         ],
  *         'plugins' => [
- *             'path/to/plugin/a.php',
- *             'path/to/plugin/b.php',
- *             'path/to/plugin/c.php',
+ *             [
+ *                 'autoload' => [
+ *                     'classmap' => ['src/', 'lib/'],
+ *                     'files' => ['/path/to/a.php', '/path/to/b.php'],
+ *                     'psr0' => ['Example\\' => 'src/'],
+ *                     'psr4' => ['Example\\' => 'src/Example']
+ *                 ],
+ *                 'class' => 'My\Example\Plugin'
+ *             ]
  *         ],
  *         'shebang' => '#!/usr/bin/env php'
  *     ]
@@ -145,6 +151,16 @@ class Configuration implements ConfigurationInterface
     /**
      * {@inheritdoc}
      */
+    public function getPlugins()
+    {
+        foreach ($this->settings['sqon']['plugins'] as $plugin) {
+            yield $this->getPlugin($plugin);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getShebang()
     {
         return $this->settings['sqon']['shebang'];
@@ -163,13 +179,74 @@ class Configuration implements ConfigurationInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Returns an instance of a plugin for its information.
+     *
+     * @param array $plugin The plugin information.
+     *
+     * @return PluginInterface The plugin instance.
+     *
+     * @throws ConfigurationException If the plugin instance could not be created.
      */
-    public function registerPlugins(EventDispatcherInterface $dispatcher)
+    private function getPlugin(array $plugin)
     {
-        foreach ($this->settings['sqon']['plugins'] as $plugin) {
-            $this->registerPlugin($dispatcher, $plugin);
+        if (isset($plugin['autoload'])) {
+            $loader = get_composer_autoloader();
+
+            if (isset($plugin['autoload']['classmap'])) {
+                $loader->addClassMap($plugin['autoload']['classmap']);
+            }
+
+            if (isset($plugin['autoload']['files'])) {
+                foreach ($plugin['autoload']['files'] as $file) {
+                    require_once $file;
+                }
+            }
+
+            if (isset($plugin['autoload']['psr0'])) {
+                foreach ($plugin['autoload']['psr0'] as $prefix => $paths) {
+                    $loader->add($prefix, $paths);
+                }
+            }
+
+            if (isset($plugin['autoload']['psr4'])) {
+                foreach ($plugin['autoload']['psr4'] as $prefix => $paths) {
+                    $loader->addPsr4($prefix, $paths);
+                }
+            }
         }
+
+        if (!isset($plugin['class'])) {
+            // @codeCoverageIgnoreStart
+            throw new ConfigurationException(
+                'The plugin class is not defined.'
+            );
+            // @codeCoverageIgnoreEnd
+        }
+
+        if (!class_exists($plugin['class'])) {
+            // @codeCoverageIgnoreStart
+            throw new ConfigurationException(
+                sprintf(
+                    'The plugin class "%s" does not exist.',
+                    $plugin['class']
+                )
+            );
+            // @codeCoverageIgnoreEnd
+        }
+
+        if (!is_a($plugin['class'], PluginInterface::class, true)) {
+            // @codeCoverageIgnoreStart
+            throw new ConfigurationException(
+                sprintf(
+                    'The plugin class "%s" does not implement "%s".',
+                    $plugin['class'],
+                    PluginInterface::class
+                )
+            );
+            // @codeCoverageIgnoreEnd
+        }
+
+        return new $plugin['class']();
     }
 
     /**
@@ -209,38 +286,5 @@ class Configuration implements ConfigurationInterface
         $settings['sqon']['compression'] = constant($constant);
 
         return $settings;
-    }
-
-    /**
-     * Registers an individual plugin with the event dispatcher.
-     *
-     * @param EventDispatcherInterface $dispatcher The event dispatcher.
-     * @param string                   $path       The path to the plugin.
-     *
-     * @throws ConfigurationException If the plugin could not be registered.
-     */
-    private function registerPlugin(
-        EventDispatcherInterface $dispatcher,
-        $path
-    ) {
-        if (!is_file($path)) {
-            // @codeCoverageIgnoreStart
-            throw new ConfigurationException(
-                "The plugin \"$path\" does not exist."
-            );
-            // @codeCoverageIgnoreEnd
-        }
-
-        $callback = require $path;
-
-        if (!is_callable($callback)) {
-            // @codeCoverageIgnoreStart
-            throw new ConfigurationException(
-                "The plugin \"$path\" did not return a callback."
-            );
-            // @codeCoverageIgnoreEnd
-        }
-
-        $callback($dispatcher, $this);
     }
 }
