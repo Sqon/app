@@ -188,6 +188,8 @@ class GitTest extends TestCase
         chdir($dir);
         touch($dir . '/test');
         exec('git init');
+        exec('git config user.name "Test"');
+        exec('git config user.email test@test');
         exec('git add test');
         exec('git commit -m "Test commit."');
         exec('git tag 1.0.0');
