@@ -50,19 +50,53 @@ class FilterTest extends TestCase
      */
     public function testSubscriberForThePluginIsRegistered()
     {
+        $expected = (new FilterSubscriber())
+            ->excludeByName('exclude.php')
+            ->excludeByPath('path/to/exclude')
+            ->excludeByPattern('/exclude/')
+            ->includeByName('include.php')
+            ->includeByPath('path/to/include')
+            ->includeByPattern('/include/')
+        ;
+
         $this
             ->config
             ->expects(self::once())
             ->method('getSettings')
             ->with('filter')
-            ->willReturn([])
+            ->willReturn(
+                [
+                    'exclude' => [
+                        'name' => ['exclude.php'],
+                        'path' => ['path/to/exclude'],
+                        'pattern' => ['/exclude/']
+                    ],
+                    'include' => [
+                        'name' => ['include.php'],
+                        'path' => ['path/to/include'],
+                        'pattern' => ['/include/']
+                    ]
+                ]
+            )
         ;
 
         $this
             ->dispatcher
             ->expects(self::once())
             ->method('addSubscriber')
-            ->with(self::isInstanceOf(FilterSubscriber::class))
+            ->with(
+                self::callback(
+                    function (FilterSubscriber $actual) use ($expected) {
+                        self::assertEquals(
+                            $expected,
+                            $actual,
+                            'The filter subscriber was not configured correctly.'
+                        );
+
+                        return true;
+                    }
+                )
+            )
         ;
 
         $this->plugin->register(

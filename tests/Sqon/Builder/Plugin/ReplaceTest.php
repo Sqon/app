@@ -50,19 +50,53 @@ class ReplaceTest extends TestCase
      */
     public function testSubscriberForThePluginIsRegistered()
     {
+        $expected = (new ReplaceSubscriber())
+            ->replaceAll('/pattern/', 'replacement')
+            ->replaceByPath('to/path.php', '/pattern/', 'replacement')
+            ->replaceByPattern('/path/', '/pattern/', 'replacement')
+        ;
+
         $this
             ->config
             ->expects(self::once())
             ->method('getSettings')
             ->with('replace')
-            ->willReturn([])
+            ->willReturn(
+                [
+                    'all' => [
+                        '/pattern/' => 'replacement'
+                    ],
+                    'path' => [
+                        'to/path.php' => [
+                            '/pattern/' => 'replacement'
+                        ]
+                    ],
+                    'pattern' => [
+                        '/path/' => [
+                            '/pattern/' => 'replacement'
+                        ]
+                    ]
+                ]
+            )
         ;
 
         $this
             ->dispatcher
             ->expects(self::once())
             ->method('addSubscriber')
-            ->with(self::isInstanceOf(ReplaceSubscriber::class))
+            ->with(
+                self::callback(
+                    function (ReplaceSubscriber $actual) use ($expected) {
+                        self::assertEquals(
+                            $expected,
+                            $actual,
+                            'The replacement subscriber was not configured correctly.'
+                        );
+
+                        return true;
+                    }
+                )
+            )
         ;
 
         $this->plugin->register(

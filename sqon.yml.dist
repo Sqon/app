@@ -8,7 +8,7 @@ filter:
     exclude:
 
         # Exclude paths by regular expression.
-        regex:
+        pattern:
             - '/[Tt]ests/'
 
     # List paths to always include.
@@ -25,14 +25,14 @@ filter:
             - 'bin/sqon'
 
         # Include paths by regular expression.
-        regex:
+        pattern:
             - '/\.php$/'
 
 # Replaces matching patterns.
 replace:
 
     # Remove the shebang line for the main script.
-    files:
+    path:
         'bin/sqon':
             '/^#![^\n\r]+[\n\r]+/m': ''
 

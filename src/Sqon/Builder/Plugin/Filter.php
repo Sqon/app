@@ -22,10 +22,68 @@ class Filter implements PluginInterface
         ConfigurationInterface $config,
         SqonInterface $sqon
     ) {
-        $dispatcher->addSubscriber(
-            new FilterSubscriber(
-                $config->getSettings('filter')
-            )
-        );
+        $subscriber = new FilterSubscriber();
+
+        foreach ($config->getSettings('filter') as $mode => $rules) {
+            switch ($mode) {
+                case 'exclude':
+                    foreach ($rules as $type => $matches) {
+                        switch ($type) {
+                            case 'name':
+                                foreach ($matches as $name) {
+                                    $subscriber->excludeByName($name);
+                                }
+
+                                break;
+
+                            case 'path':
+                                foreach ($matches as $path) {
+                                    $subscriber->excludeByPath($path);
+                                }
+
+                                break;
+
+                            case 'pattern':
+                                foreach ($matches as $pattern) {
+                                    $subscriber->excludeByPattern($pattern);
+                                }
+
+                                break;
+                        }
+                    }
+
+                    break;
+
+                case 'include':
+                    foreach ($rules as $type => $matches) {
+                        switch ($type) {
+                            case 'name':
+                                foreach ($matches as $name) {
+                                    $subscriber->includeByName($name);
+                                }
+
+                                break;
+
+                            case 'path':
+                                foreach ($matches as $path) {
+                                    $subscriber->includeByPath($path);
+                                }
+
+                                break;
+
+                            case 'pattern':
+                                foreach ($matches as $pattern) {
+                                    $subscriber->includeByPattern($pattern);
+                                }
+
+                                break;
+                        }
+                    }
+
+                    break;
+            }
+        }
+
+        $dispatcher->addSubscriber($subscriber);
     }
 }

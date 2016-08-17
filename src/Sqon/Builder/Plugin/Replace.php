@@ -22,10 +22,45 @@ class Replace implements PluginInterface
         ConfigurationInterface $config,
         SqonInterface $sqon
     ) {
-        $dispatcher->addSubscriber(
-            new ReplaceSubscriber(
-                $config->getSettings('replace')
-            )
-        );
+        $subscriber = new ReplaceSubscriber();
+
+        foreach ($config->getSettings('replace') as $type => $sets) {
+            switch ($type) {
+                case 'all':
+                    foreach ($sets as $pattern => $replacement) {
+                        $subscriber->replaceAll($pattern, $replacement);
+                    }
+
+                    break;
+
+                case 'path':
+                    foreach ($sets as $path => $replacements) {
+                        foreach ($replacements as $pattern => $replacement) {
+                            $subscriber->replaceByPath(
+                                $path,
+                                $pattern,
+                                $replacement
+                            );
+                        }
+                    }
+
+                    break;
+
+                case 'pattern':
+                    foreach ($sets as $path => $replacements) {
+                        foreach ($replacements as $pattern => $replacement) {
+                            $subscriber->replaceByPattern(
+                                $path,
+                                $pattern,
+                                $replacement
+                            );
+                        }
+                    }
+
+                    break;
+            }
+        }
+
+        $dispatcher->addSubscriber($subscriber);
     }
 }
