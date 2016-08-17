@@ -161,6 +161,18 @@ class Configuration implements ConfigurationInterface
     /**
      * {@inheritdoc}
      */
+    public function getSettings($namespace)
+    {
+        if (isset($this->settings[$namespace])) {
+            return $this->settings[$namespace];
+        }
+
+        return null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getShebang()
     {
         return $this->settings['sqon']['shebang'];
@@ -169,13 +181,9 @@ class Configuration implements ConfigurationInterface
     /**
      * {@inheritdoc}
      */
-    public function getSettings($namespace)
+    public function setSettings($namespace, $settings)
     {
-        if (isset($this->settings[$namespace])) {
-            return $this->settings[$namespace];
-        }
-
-        return null;
+        $this->settings[$namespace] = $settings;
     }
 
     /**

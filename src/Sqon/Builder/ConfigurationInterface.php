@@ -206,4 +206,20 @@ interface ConfigurationInterface
      * @return null|string The shebang line.
      */
     public function getShebang();
+
+    /**
+     * Sets the settings for a namespace.
+     *
+     * This method will set or replace settings stored for a namespace. This
+     * is useful for using plugins to modify the settings of other plugins
+     * before they are registered.
+     *
+     * ```php
+     * $config->setSettings('plugin_namespace', $settings);
+     * ```
+     *
+     * @param string $namespace The namespace for the settings.
+     * @param mixed  $settings  The new plugin settings.
+     */
+    public function setSettings($namespace, $settings);
 }

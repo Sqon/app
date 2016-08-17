@@ -308,6 +308,20 @@ class ConfigurationTest extends TestCase
     }
 
     /**
+     * Verify that the namespaced settings can be set.
+     */
+    public function testSetNewNamespacedSettings()
+    {
+        $this->config->setSettings('test', 123);
+
+        self::assertEquals(
+            123,
+            $this->config->getSettings('test'),
+            'The new settings were not set.'
+        );
+    }
+
+    /**
      * Creates a new build configuration manager.
      */
     protected function setUp()
