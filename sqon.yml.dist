@@ -28,13 +28,25 @@ filter:
         pattern:
             - '/\.php$/'
 
+# Replace matching patterns with Git information.
+git:
+
+    # Replace the VERSION constant with an actual value.
+    tag:
+        - '/const VERSION = ''\(repo\)'';/'
+
 # Replaces matching patterns.
 replace:
 
-    # Remove the shebang line for the main script.
     path:
+
+        # Remove the shebang line for the main script.
         'bin/sqon':
             '/^#![^\n\r]+[\n\r]+/m': ''
+
+        # Replace the version constant value with the actual version.
+        'src/Sqon/Console/Application.php':
+            '/const VERSION = ''\(repo\)'';/': 'const VERSION = "%s";'
 
 # Set the build configuration.
 sqon:
@@ -49,6 +61,7 @@ sqon:
     plugins:
         - class: Sqon\Builder\Plugin\Chmod
         - class: Sqon\Builder\Plugin\Filter
+        - class: Sqon\Builder\Plugin\Git
         - class: Sqon\Builder\Plugin\Replace
 
     # Create the Sqon as "sqon".
