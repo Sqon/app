@@ -17,11 +17,18 @@ use Symfony\Component\Console\Application as Base;
 class Application extends Base
 {
     /**
+     * The version of the Sqon application.
+     *
+     * @var string
+     */
+    const VERSION = '(repo)';
+
+    /**
      * {@inheritdoc}
      */
     public function __construct()
     {
-        parent::__construct('Sqon', '0.1.0');
+        parent::__construct('Sqon', self::VERSION);
     }
 
     /**
