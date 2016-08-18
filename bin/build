@@ -8,6 +8,15 @@ ROOT="$(dirname "$HERE")"
 # Go up to project root.
 cd "$ROOT"
 
+# Remove existing build.
+if [ -f sqon ]; then
+    rm sqon
+fi
+
+if [ -f sqon.sig ]; then
+    rm sqon.sig
+fi
+
 # Remove the vendor directory.
 echo "Removing vendor files..."
 
@@ -27,3 +36,6 @@ sqon create -vv
 
 # Sign the Sqon.
 gpg --output sqon.sig --detach-sig sqon
+
+# Paranoia check.
+gpg --verify sqon.sig sqon
