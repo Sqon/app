@@ -5,6 +5,8 @@ namespace Test\Sqon\Builder\Plugin;
 use Sqon\Builder\ConfigurationInterface;
 use Sqon\Builder\Plugin\PluginInterface;
 use Sqon\SqonInterface;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\ConfigurationInterface as SchemaInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -12,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @author Kevin Herrera <kevin@herrera.io>
  */
-class TestPlugin implements PluginInterface
+class TestPlugin implements PluginInterface, SchemaInterface
 {
     /**
      * The build configuration manager.
@@ -34,6 +36,40 @@ class TestPlugin implements PluginInterface
      * @var SqonInterface
      */
     public static $sqon;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getConfigTreeBuilder()
+    {
+        $tree = new TreeBuilder();
+        $root = $tree->root('test');
+
+        $root
+            ->children()
+                ->arrayNode('list')
+                    ->beforeNormalization()
+                        ->ifTrue(
+                            function ($value) {
+                                return !is_array($value);
+                            }
+                        )
+                        ->then(
+                            function ($value) {
+                                return [$value];
+                            }
+                        )
+                    ->end()
+                    ->prototype('scalar')
+                        ->cannotBeEmpty()
+                        ->isRequired()
+                    ->end()
+                ->end()
+            ->end()
+        ;
+
+        return $tree;
+    }
 
     /**
      * {@inheritdoc}

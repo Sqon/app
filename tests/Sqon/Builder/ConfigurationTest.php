@@ -14,6 +14,7 @@ use Test\Sqon\Test\TempTrait;
  * @author Kevin Herrera <kevin@herrera.io>
  *
  * @covers \Sqon\Builder\Configuration
+ * @covers \Sqon\Builder\Schema
  */
 class ConfigurationTest extends TestCase
 {
@@ -196,6 +197,9 @@ class ConfigurationTest extends TestCase
         $config = new Configuration(
             $this->dir,
             [
+                'test' => [
+                    'list' => 123
+                ],
                 'sqon' => [
                     'plugins' => [
                         [
@@ -243,6 +247,12 @@ class ConfigurationTest extends TestCase
             $psr4,
             $loader->getPrefixesPsr4(),
             'The PSR-4 prefixes were not registered.'
+        );
+
+        self::assertEquals(
+            ['list' => [123]],
+            $config->getSettings('test'),
+            'The plugin scheme was not processed.'
         );
     }
 

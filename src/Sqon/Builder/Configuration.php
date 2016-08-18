@@ -2,10 +2,12 @@
 
 namespace Sqon\Builder;
 
-use InvalidArgumentException;
 use RuntimeException;
 use Sqon\Builder\Exception\ConfigurationException;
 use Sqon\Builder\Plugin\PluginInterface;
+use Sqon\SqonInterface;
+use Symfony\Component\Config\Definition\ConfigurationInterface as SchemaInterface;
+use Symfony\Component\Config\Definition\Processor;
 
 /**
  * Manages the build configuration settings for a Sqon builder.
@@ -43,26 +45,18 @@ use Sqon\Builder\Plugin\PluginInterface;
 class Configuration implements ConfigurationInterface
 {
     /**
-     * The default build configuration settings.
-     *
-     * @var array
-     */
-    private static $default = [
-        'bootstrap' => null,
-        'compression' => 'NONE',
-        'main' => null,
-        'output' => 'project.sqon',
-        'paths' => [],
-        'plugins' => [],
-        'shebang' => null
-    ];
-
-    /**
      * The base directory path.
      *
      * @var string
      */
     private $directory;
+
+    /**
+     * The available plugins.
+     *
+     * @var PluginInterface[]
+     */
+    private $plugins = [];
 
     /**
      * The build configuration settings.
@@ -80,7 +74,8 @@ class Configuration implements ConfigurationInterface
     public function __construct($directory, array $settings)
     {
         $this->directory = $directory;
-        $this->settings = $this->setDefaults($settings);
+
+        $this->processSettings($settings);
     }
 
     /**
@@ -153,9 +148,7 @@ class Configuration implements ConfigurationInterface
      */
     public function getPlugins()
     {
-        foreach ($this->settings['sqon']['plugins'] as $plugin) {
-            yield $this->getPlugin($plugin);
-        }
+        return $this->plugins;
     }
 
     /**
@@ -211,14 +204,14 @@ class Configuration implements ConfigurationInterface
             }
 
             if (isset($plugin['autoload']['psr0'])) {
-                foreach ($plugin['autoload']['psr0'] as $prefix => $paths) {
-                    $loader->add($prefix, $paths);
+                foreach ($plugin['autoload']['psr0'] as $psr0) {
+                    $loader->add($psr0['prefix'], $psr0['paths']);
                 }
             }
 
             if (isset($plugin['autoload']['psr4'])) {
-                foreach ($plugin['autoload']['psr4'] as $prefix => $paths) {
-                    $loader->addPsr4($prefix, $paths);
+                foreach ($plugin['autoload']['psr4'] as $psr4) {
+                    $loader->addPsr4($psr4['prefix'], $psr4['paths']);
                 }
             }
         }
@@ -258,41 +251,49 @@ class Configuration implements ConfigurationInterface
     }
 
     /**
-     * Sets the default Sqon build settings.
+     * Processes the settings and loads the plugins.
      *
-     * This method will set any default setting that is missing from the user
-     * provided configuration settings. Settings that are references to items
-     * such as class constants will also be resolved.
-     *
-     * @param array $settings The build configuration settings.
-     *
-     * @return array The build configuration settings.
-     *
-     * @throws InvalidArgumentException If a setting is invalid.
+     * @param array $settings The current settings.
      */
-    private function setDefaults(array $settings)
+    private function processSettings(array $settings)
     {
-        if (isset($settings['sqon'])) {
-            $settings['sqon'] = array_merge(self::$default, $settings['sqon']);
-        } else {
-            $settings['sqon'] = self::$default;
+        $processor = new Processor();
+
+        if (!isset($settings['sqon'])) {
+            $settings['sqon'] = [];
         }
 
-        $constant = '\Sqon\Sqon::' . $settings['sqon']['compression'];
+        $settings['sqon'] = $processor->processConfiguration(
+            new Schema(),
+            [$settings['sqon']]
+        );
 
-        if (!defined($constant)) {
-            // @codeCoverageIgnoreStart
-            throw new InvalidArgumentException(
-                sprintf(
-                    'The compression mode "%s" is not valid.',
-                    $settings['sqon']['compression']
-                )
-            );
-            // @codeCoverageIgnoreEnd
+        $settings['sqon']['compression'] = constant(
+            sprintf(
+                '%s::%s',
+                SqonInterface::class,
+                $settings['sqon']['compression']
+            )
+        );
+
+        foreach ($settings['sqon']['plugins'] as $plugin) {
+            $plugin = $this->getPlugin($plugin);
+
+            if ($plugin instanceof SchemaInterface) {
+                $tree = $plugin->getConfigTreeBuilder()->buildTree();
+                $name = $tree->getName();
+
+                if (isset($settings[$name])) {
+                    $settings[$name] = $processor->process(
+                        $tree,
+                        [$settings[$name]]
+                    );
+                }
+            }
+
+            $this->plugins[] = $plugin;
         }
 
-        $settings['sqon']['compression'] = constant($constant);
-
-        return $settings;
+        $this->settings = $settings;
     }
 }

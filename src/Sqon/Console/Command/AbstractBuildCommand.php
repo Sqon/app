@@ -558,7 +558,17 @@ HELP
         }
         // @codeCoverageIgnoreEnd
 
-        $data['sqon'] = array_merge($data['sqon'], $settings['sqon']);
+        /*
+        if (isset($data['sqon'])) {
+            $data['sqon'] = array_merge($data['sqon'], $settings['sqon']);
+        } else {
+            $data['sqon'] = $settings['sqon'];
+        }
+        */
+
+        $data['sqon'] = isset($data['sqon'])
+            ? array_merge($data['sqon'], $settings['sqon'])
+            : $settings['sqon'];
 
         return [dirname($file), $data];
     }
