@@ -8,6 +8,7 @@ use Sqon\Builder\ConfigurationInterface;
 use Sqon\Builder\Plugin\Replace;
 use Sqon\Event\Subscriber\ReplaceSubscriber;
 use Sqon\SqonInterface;
+use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -46,6 +47,75 @@ class ReplaceTest extends TestCase
     private $sqon;
 
     /**
+     * Verify that the settings are processed correctly.
+     */
+    public function testConfigurationSettingsAreProcessedCorrectly()
+    {
+        self::assertEquals(
+            [
+                'all' => [
+                    [
+                        'pattern' => 'a',
+                        'replacement' => 'b'
+                    ],
+                    [
+                        'pattern' => 'c',
+                        'replacement' => 'd'
+                    ]
+                ],
+                'path' => [
+                    [
+                        'path' => 'path.php',
+                        'pattern' => 'e',
+                        'replacement' => 'f'
+                    ],
+                    [
+                        'path' => 'path.php',
+                        'pattern' => 'g',
+                        'replacement' => 'h'
+                    ]
+                ],
+                'pattern' => [
+                    [
+                        'path' => '/path/',
+                        'pattern' => 'i',
+                        'replacement' => 'j'
+                    ],
+                    [
+                        'path' => '/path/',
+                        'pattern' => 'k',
+                        'replacement' => 'l'
+                    ]
+                ]
+            ],
+            (new Processor())->processConfiguration(
+                $this->plugin,
+                [
+                    [
+                        'all' => [
+                            'a' => 'b',
+                            'c' => 'd'
+                        ],
+                        'path' => [
+                            'path.php' => [
+                                'e' => 'f',
+                                'g' => 'h'
+                            ]
+                        ],
+                        'pattern' => [
+                            '/path/' => [
+                                'i' => 'j',
+                                'k' => 'l'
+                            ]
+                        ]
+                    ]
+                ]
+            ),
+            'The configuration settings were not processed correctly.'
+        );
+    }
+
+    /**
      * Verify that the plugin subscriber is registered.
      */
     public function testSubscriberForThePluginIsRegistered()
@@ -64,16 +134,23 @@ class ReplaceTest extends TestCase
             ->willReturn(
                 [
                     'all' => [
-                        '/pattern/' => 'replacement'
+                        [
+                            'pattern' => '/pattern/',
+                            'replacement' => 'replacement'
+                        ]
                     ],
                     'path' => [
-                        'to/path.php' => [
-                            '/pattern/' => 'replacement'
+                        [
+                            'path' => 'to/path.php',
+                            'pattern' => '/pattern/',
+                            'replacement' => 'replacement'
                         ]
                     ],
                     'pattern' => [
-                        '/path/' => [
-                            '/pattern/' => 'replacement'
+                        [
+                            'path' => '/path/',
+                            'pattern' => '/pattern/',
+                            'replacement' => 'replacement'
                         ]
                     ]
                 ]

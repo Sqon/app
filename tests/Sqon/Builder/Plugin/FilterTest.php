@@ -8,6 +8,7 @@ use Sqon\Builder\ConfigurationInterface;
 use Sqon\Builder\Plugin\Filter;
 use Sqon\Event\Subscriber\FilterSubscriber;
 use Sqon\SqonInterface;
+use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -44,6 +45,45 @@ class FilterTest extends TestCase
      * @var MockObject|SqonInterface
      */
     private $sqon;
+
+    /**
+     * Verify that the settings are processed correctly.
+     */
+    public function testConfigurationSettingsAreProcessedCorrectly()
+    {
+        self::assertEquals(
+            [
+                'exclude' => [
+                    'name' => ['a', 'b'],
+                    'path' => ['c', 'd'],
+                    'pattern' => ['e', 'f']
+                ],
+                'include' => [
+                    'name' => ['g', 'h'],
+                    'path' => ['i', 'j'],
+                    'pattern' => ['k', 'l']
+                ]
+            ],
+            (new Processor())->processConfiguration(
+                $this->plugin,
+                [
+                    [
+                        'exclude' => [
+                            'name' => ['a', 'b'],
+                            'path' => ['c', 'd'],
+                            'pattern' => ['e', 'f']
+                        ],
+                        'include' => [
+                            'name' => ['g', 'h'],
+                            'path' => ['i', 'j'],
+                            'pattern' => ['k', 'l']
+                        ]
+                    ]
+                ]
+            ),
+            'The configuration settings were not processed correctly.'
+        );
+    }
 
     /**
      * Verify that the plugin subscriber is registered.

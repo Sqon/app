@@ -5,6 +5,8 @@ namespace Sqon\Builder\Plugin;
 use Sqon\Builder\ConfigurationInterface;
 use Sqon\Event\Subscriber\FilterSubscriber;
 use Sqon\SqonInterface;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\ConfigurationInterface as SchemaInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -12,8 +14,56 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @author Kevin Herrera <kevin@herrera.io>
  */
-class Filter implements PluginInterface
+class Filter implements PluginInterface, SchemaInterface
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function getConfigTreeBuilder()
+    {
+        $tree = new TreeBuilder();
+        $root = $tree->root('filter');
+
+        $rules = function ($type) {
+            $tree = new TreeBuilder();
+            $root = $tree->root($type);
+
+            $root
+                ->children()
+                    ->arrayNode('name')
+                        ->prototype('scalar')
+                            ->cannotBeEmpty()
+                            ->isRequired()
+                        ->end()
+                    ->end()
+                    ->arrayNode('path')
+                        ->prototype('scalar')
+                            ->cannotBeEmpty()
+                            ->isRequired()
+                        ->end()
+                    ->end()
+                    ->arrayNode('pattern')
+                        ->prototype('scalar')
+                            ->cannotBeEmpty()
+                            ->isRequired()
+                        ->end()
+                    ->end()
+                ->end()
+            ;
+
+            return $root;
+        };
+
+        $root
+            ->children()
+                ->append($rules('exclude'))
+                ->append($rules('include'))
+            ->end()
+        ;
+
+        return $tree;
+    }
+
     /**
      * {@inheritdoc}
      */

@@ -7,6 +7,8 @@ use Sqon\Builder\Exception\Builder\PluginException;
 use Sqon\Event\BeforeSetPathEvent;
 use Sqon\Event\Subscriber\ReplaceSubscriber;
 use Sqon\SqonInterface;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\ConfigurationInterface as SchemaInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Process\ProcessBuilder;
 
@@ -70,7 +72,7 @@ use Symfony\Component\Process\ProcessBuilder;
  *
  * @author Kevin Herrera <kevin@herrera.io>
  */
-class Git implements PluginInterface
+class Git implements PluginInterface, SchemaInterface
 {
     /**
      * The current commit hash.
@@ -110,6 +112,42 @@ class Git implements PluginInterface
     /**
      * {@inheritdoc}
      */
+    public function getConfigTreeBuilder()
+    {
+        $tree = new TreeBuilder();
+        $root = $tree->root('git');
+
+        $patterns = function ($type) {
+            $tree = new TreeBuilder();
+            $root = $tree->root($type);
+
+            $root
+                ->prototype('scalar')
+                    ->cannotBeEmpty()
+                    ->isRequired()
+                ->end()
+            ;
+
+            return $root;
+        };
+
+        $root
+            ->normalizeKeys(false)
+            ->children()
+                ->append($patterns('commit'))
+                ->append($patterns('commit-date'))
+                ->append($patterns('commit-short'))
+                ->append($patterns('commit-tag'))
+                ->append($patterns('tag'))
+            ->end()
+        ;
+
+        return $tree;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function register(
         EventDispatcherInterface $dispatcher,
         ConfigurationInterface $config,
@@ -126,6 +164,12 @@ class Git implements PluginInterface
         // @codeCoverageIgnoreEnd
 
         foreach ($config->getSettings('git') as $type => $patterns) {
+            // @codeCoverageIgnoreStart
+            if (empty($patterns)) {
+                continue;
+            }
+            // @codeCoverageIgnoreEnd
+
             $value = null;
 
             switch ($type) {
@@ -287,15 +331,21 @@ class Git implements PluginInterface
      */
     private function replacePatterns(array &$array, array $patterns, $value)
     {
-        foreach ($array as $k => &$v) {
-            if (is_array($v)) {
-                $this->replacePatterns($v, $patterns, $value);
-            } elseif (is_string($v) && in_array($k, $patterns)) {
-                $array[$k] = sprintf(
-                    $v,
-                    $value
-                );
+        $set = function ($key, $pattern, $value) use (&$array) {
+            foreach ($array[$key] as &$set) {
+                if ($pattern === $set['pattern']) {
+                    $set['replacement'] = sprintf(
+                        $set['replacement'],
+                        $value
+                    );
+                }
             }
+        };
+
+        foreach ($patterns as $pattern) {
+            $set('all', $pattern, $value);
+            $set('path', $pattern, $value);
+            $set('pattern', $pattern, $value);
         }
     }
 

@@ -7,6 +7,7 @@ use PHPUnit_Framework_TestCase as TestCase;
 use Sqon\Builder\ConfigurationInterface;
 use Sqon\Builder\Plugin\Git;
 use Sqon\SqonInterface;
+use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Test\Sqon\Test\TempTrait;
 
@@ -57,6 +58,35 @@ class GitTest extends TestCase
     private $sqon;
 
     /**
+     * Verify that the settings are processed correctly.
+     */
+    public function testConfigurationSettingsAreProcessedCorrectly()
+    {
+        self::assertEquals(
+            [
+                'commit' => ['a', 'b'],
+                'commit-date' => ['c', 'd'],
+                'commit-short' => ['e', 'f'],
+                'commit-tag' => ['g', 'h'],
+                'tag' => ['i', 'j']
+            ],
+            (new Processor())->processConfiguration(
+                $this->plugin,
+                [
+                    [
+                        'commit' => ['a', 'b'],
+                        'commit-date' => ['c', 'd'],
+                        'commit-short' => ['e', 'f'],
+                        'commit-tag' => ['g', 'h'],
+                        'tag' => ['i', 'j']
+                    ]
+                ]
+            ),
+            'The configuration settings were not processed correctly.'
+        );
+    }
+
+    /**
      * Verify that Replace plugin settings are updated with Git values.
      */
     public function testReplacePluginPlaceholderSettingsWithGitValues()
@@ -75,20 +105,33 @@ class GitTest extends TestCase
             ->willReturn(
                 [
                     'all' => [
-                        '/\$tag\$/' => 'Tag: %s'
+                        [
+                            'pattern' => '/\$tag\$/',
+                            'replacement' => "Tag: %s"
+                        ]
                     ],
                     'path' => [
-                        'src/build.php' => [
-                            '/\$commit-date\$/' => 'Date: %s',
-                            '/\$commit\$/' => 'Commit: %s',
-                            '/\$commit-tag\$/' => 'Version: %s'
+                        [
+                            'path' => 'src/build.php',
+                            'pattern' => '/\$commit-date\$/',
+                            'replacement' => "Date: %s"
+                        ],
+                        [
+                            'path' => 'src/build.php',
+                            'pattern' => '/\$commit\$/',
+                            'replacement' => "Commit: %s"
+                        ],
+                        [
+                            'path' => 'src/build.php',
+                            'pattern' => '/\$commit-tag\$/',
+                            'replacement' => "Version: %s"
                         ]
                     ],
                     'pattern' => [
-                        'pattern' => [
-                            '/\.php$/' => [
-                                '/\$commit-short\$/' => '%s'
-                            ]
+                        [
+                            'path' => '/\.php$/',
+                            'pattern' => '/\$commit-short\$/',
+                            'replacement' => "%s"
                         ]
                     ]
                 ]
@@ -119,20 +162,33 @@ class GitTest extends TestCase
                 'replace',
                 [
                     'all' => [
-                        '/\$tag\$/' => "Tag: $tag"
+                        [
+                            'pattern' => '/\$tag\$/',
+                            'replacement' => "Tag: $tag"
+                        ]
                     ],
                     'path' => [
-                        'src/build.php' => [
-                            '/\$commit-date\$/' => "Date: $commitDate",
-                            '/\$commit\$/' => "Commit: $commit",
-                            '/\$commit-tag\$/' => "Version: $commitTag"
+                        [
+                            'path' => 'src/build.php',
+                            'pattern' => '/\$commit-date\$/',
+                            'replacement' => "Date: $commitDate"
+                        ],
+                        [
+                            'path' => 'src/build.php',
+                            'pattern' => '/\$commit\$/',
+                            'replacement' => "Commit: $commit"
+                        ],
+                        [
+                            'path' => 'src/build.php',
+                            'pattern' => '/\$commit-tag\$/',
+                            'replacement' => "Version: $commitTag"
                         ]
                     ],
                     'pattern' => [
-                        'pattern' => [
-                            '/\.php$/' => [
-                                '/\$commit-short\$/' => $commitShort
-                            ]
+                        [
+                            'path' => '/\.php$/',
+                            'pattern' => '/\$commit-short\$/',
+                            'replacement' => $commitShort
                         ]
                     ]
                 ]

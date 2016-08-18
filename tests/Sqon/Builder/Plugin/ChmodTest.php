@@ -8,6 +8,7 @@ use Sqon\Builder\ConfigurationInterface;
 use Sqon\Builder\Plugin\Chmod;
 use Sqon\Event\Subscriber\ChmodSubscriber;
 use Sqon\SqonInterface;
+use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -44,6 +45,25 @@ class ChmodTest extends TestCase
      * @var MockObject|SqonInterface
      */
     private $sqon;
+
+    /**
+     * Verify that the settings are processed correctly.
+     */
+    public function testConfigurationSettingsAreProcessedCorrectly()
+    {
+        self::assertEquals(
+            [
+                'mode' => 0755
+            ],
+            (new Processor())->processConfiguration(
+                $this->plugin,
+                [
+                    0755
+                ]
+            ),
+            'The configuration settings were not processed correctly.'
+        );
+    }
 
     /**
      * Verify that the plugin subscriber is registered.
