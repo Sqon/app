@@ -4,8 +4,6 @@ namespace Sqon\Builder\Plugin;
 
 use Sqon\Builder\ConfigurationInterface;
 use Sqon\Builder\Exception\Builder\PluginException;
-use Sqon\Event\BeforeSetPathEvent;
-use Sqon\Event\Subscriber\ReplaceSubscriber;
 use Sqon\SqonInterface;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface as SchemaInterface;
@@ -72,7 +70,9 @@ use Symfony\Component\Process\ProcessBuilder;
  *
  * @author Kevin Herrera <kevin@herrera.io>
  */
-class Git implements PluginInterface, SchemaInterface
+class Git extends AbstractReplaceExtension implements
+    PluginInterface,
+    SchemaInterface
 {
     /**
      * The current commit hash.
@@ -200,33 +200,11 @@ class Git implements PluginInterface, SchemaInterface
             }
 
             if (null !== $value) {
-                $this->replacePatterns($replace, (array) $patterns, $value);
+                $this->replaceSettings($replace, (array) $patterns, $value);
             }
         }
 
         $config->setSettings('replace', $replace);
-    }
-
-    /**
-     * Throws an exception if the replace subscriber is already registered.
-     *
-     * @param EventDispatcherInterface $dispatcher The event dispatcher.
-     *
-     * @throws PluginException If the subscriber could not be found.
-     */
-    private function checkReplace(EventDispatcherInterface $dispatcher)
-    {
-        $listeners = $dispatcher->getListeners(BeforeSetPathEvent::NAME);
-
-        foreach ((array) $listeners as $listener) {
-            // @codeCoverageIgnoreStart
-            if ($listener[0] instanceof ReplaceSubscriber) {
-                throw new PluginException(
-                    'The Replace plugin must be registered after Git.'
-                );
-            }
-            // @codeCoverageIgnoreEnd
-        }
     }
 
     /**
@@ -319,34 +297,6 @@ class Git implements PluginInterface, SchemaInterface
         }
 
         return $this->tag;
-    }
-
-
-    /**
-     * Replaces the placeholder values with ab actual Git value.
-     *
-     * @param array  &$array   The replacement plugin settings.
-     * @param array  $patterns The Git patterns to replace.
-     * @param string $value    The Git value to replace with.
-     */
-    private function replacePatterns(array &$array, array $patterns, $value)
-    {
-        $set = function ($key, $pattern, $value) use (&$array) {
-            foreach ($array[$key] as &$set) {
-                if ($pattern === $set['pattern']) {
-                    $set['replacement'] = sprintf(
-                        $set['replacement'],
-                        $value
-                    );
-                }
-            }
-        };
-
-        foreach ($patterns as $pattern) {
-            $set('all', $pattern, $value);
-            $set('path', $pattern, $value);
-            $set('pattern', $pattern, $value);
-        }
     }
 
     /**

@@ -16,6 +16,7 @@ use Test\Sqon\Test\TempTrait;
  *
  * @author Kevin Herrera <kevin@herrera.io>
  *
+ * @covers \Sqon\Builder\Plugin\AbstractReplaceExtension
  * @covers \Sqon\Builder\Plugin\Git
  */
 class GitTest extends TestCase
