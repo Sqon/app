@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# Define useful variables.
+SELF="$(readlink -f "$0")"
+HERE="$(dirname "$SELF")"
+ROOT="$(dirname "$HERE")"
+
+# Go up to project root.
+cd "$ROOT"
+
+# Remove the vendor directory.
+echo "Removing vendor files..."
+
+rm -Rf vendor/
+
+# Install with dev dependencies.
+echo "Installing Composer packages with dev packages..."
+echo
+
+composer install --optimize-autoloader
+
+# Run the test suite.
+echo "Running the test suite..."
+echo
+
+phpunit
