@@ -5,7 +5,7 @@ chmod: 0755
 date:
 
     # Replace the VERSION date constant with an actual value.
-    - pattern: '/''date''\s*=>\s*''\(repo\)''/'
+    - pattern: '/const DATE = ''\(repo\)'';/'
       format: 'Y-m-d H:i:s P'
 
 # Filter out some files.
@@ -40,7 +40,7 @@ git:
 
     # Replace the VERSION number constant with an actual value.
     tag:
-        - '/''number''\s*=>\s*''\(repo\)''/'
+        - '/const VERSION = ''\(repo\)'';/'
 
 # Replaces matching patterns.
 replace:
@@ -53,8 +53,8 @@ replace:
 
         # Replace the version constant value with the actual version.
         'src/Sqon/Console/Application.php':
-            '/''date''\s*=>\s*''\(repo\)''/': '''date'' => ''%s'''
-            '/''number''\s*=>\s*''\(repo\)''/': '''number'' => ''%s'''
+            '/const DATE = ''\(repo\)'';/': 'const DATE = ''%s'';'
+            '/const VERSION = ''\(repo\)'';/': 'const VERSION = ''%s'';'
 
 # Set the build configuration.
 sqon:

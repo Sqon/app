@@ -17,21 +17,25 @@ use Symfony\Component\Console\Application as Base;
 class Application extends Base
 {
     /**
-     * The version of the Sqon application.
+     * The build date of the Sqon application.
      *
      * @var string
      */
-    const VERSION = [
-        'date' => '(repo)',
-        'number' => '(repo)'
-    ];
+    const DATE = '(repo)';
+
+    /**
+     * The version number of the Sqon application.
+     *
+     * @var string
+     */
+    const VERSION = '(repo)';
 
     /**
      * {@inheritdoc}
      */
     public function __construct()
     {
-        parent::__construct('Sqon', self::VERSION['number']);
+        parent::__construct('Sqon', self::VERSION);
     }
 
     /**
@@ -41,7 +45,7 @@ class Application extends Base
      */
     public function getLongVersion()
     {
-        if ('(repo)' === self::VERSION['number']) {
+        if ('(repo)' === self::VERSION) {
             return sprintf(
                 '<info>%s</info> <fg=blue>(repo)</fg=blue>',
                 $this->getName()
@@ -51,8 +55,8 @@ class Application extends Base
         return sprintf(
             '<info>%s</info> version <comment>%s</comment> <fg=blue>(%s)</fg=blue>',
             $this->getName(),
-            self::VERSION['number'],
-            self::VERSION['date']
+            self::VERSION,
+            self::DATE
         );
     }
 
