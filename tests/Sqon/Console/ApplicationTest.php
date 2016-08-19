@@ -50,8 +50,8 @@ class ApplicationTest extends TestCase
         fseek($this->stream, 0);
 
         self::assertRegExp(
-            '/Sqon version \(repo\)/',
-            fgets($this->stream),
+            '/Sqon \(repo\)/',
+            trim(fgets($this->stream)),
             'The application name and version is not set properly.'
         );
     }

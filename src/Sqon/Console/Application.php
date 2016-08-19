@@ -21,14 +21,39 @@ class Application extends Base
      *
      * @var string
      */
-    const VERSION = '(repo)';
+    const VERSION = [
+        'date' => '(repo)',
+        'number' => '(repo)'
+    ];
 
     /**
      * {@inheritdoc}
      */
     public function __construct()
     {
-        parent::__construct('Sqon', self::VERSION);
+        parent::__construct('Sqon', self::VERSION['number']);
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @codeCoverageIgnore
+     */
+    public function getLongVersion()
+    {
+        if ('(repo)' === self::VERSION['number']) {
+            return sprintf(
+                '<info>%s</info> <fg=blue>(repo)</fg=blue>',
+                $this->getName()
+            );
+        }
+
+        return sprintf(
+            '<info>%s</info> version <comment>%s</comment> <fg=blue>(%s)</fg=blue>',
+            $this->getName(),
+            self::VERSION['number'],
+            self::VERSION['date']
+        );
     }
 
     /**

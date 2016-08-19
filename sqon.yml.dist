@@ -1,6 +1,13 @@
 # Make the new Sqon executable.
 chmod: 0755
 
+# Replace matching patterns with date and time information.
+date:
+
+    # Replace the VERSION date constant with an actual value.
+    - pattern: '/''date''\s*=>\s*''\(repo\)''/'
+      format: 'Y-m-d H:i:s P'
+
 # Filter out some files.
 filter:
 
@@ -31,9 +38,9 @@ filter:
 # Replace matching patterns with Git information.
 git:
 
-    # Replace the VERSION constant with an actual value.
+    # Replace the VERSION number constant with an actual value.
     tag:
-        - '/const VERSION = ''\(repo\)'';/'
+        - '/''number''\s*=>\s*''\(repo\)''/'
 
 # Replaces matching patterns.
 replace:
@@ -46,7 +53,8 @@ replace:
 
         # Replace the version constant value with the actual version.
         'src/Sqon/Console/Application.php':
-            '/const VERSION = ''\(repo\)'';/': 'const VERSION = "%s";'
+            '/''date''\s*=>\s*''\(repo\)''/': '''date'' => ''%s'''
+            '/''number''\s*=>\s*''\(repo\)''/': '''number'' => ''%s'''
 
 # Set the build configuration.
 sqon:
@@ -60,6 +68,7 @@ sqon:
     # Registers Sqon manager plugins.
     plugins:
         - class: Sqon\Builder\Plugin\Chmod
+        - class: Sqon\Builder\Plugin\Date
         - class: Sqon\Builder\Plugin\Filter
         - class: Sqon\Builder\Plugin\Git
         - class: Sqon\Builder\Plugin\Replace
